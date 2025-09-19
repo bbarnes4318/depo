@@ -44,7 +44,8 @@ const HEADERS = [
   'city',
   'state',
   'postal_code',
-  'country_diagnosis',
+  'country',
+  'diagnosis',
   'date_of_exposure',
   'brief_description_of_your_situation',
   'tcpa_consent_given',
@@ -63,7 +64,8 @@ const FIELD_MAPPING = {
   city: 'city',
   state: 'state',
   postal_code: 'postal_code',
-  country_diagnosis: 'country_diagnosis',
+  country_diagnosis: 'country',
+  diagnosis: 'diagnosis',
   date_of_exposure: 'date_of_exposure',
   brief_description_of_your_situation: 'brief_description_of_your_situation',
   tcpa_consent_given: 'tcpa_consent_given',
@@ -122,7 +124,7 @@ app.post('/webhook', async (req, res) => {
     
     // Build the row for Google Sheets in the exact headers order
     const row = HEADERS.map((key) => {
-      let value = cleanPayload[key];
+      let value = cleanPayload[FIELD_MAPPING[key]] || cleanPayload[key];
       
       // Handle special mappings for Google Sheets
       if (key === 'xxTrustedFormCertUrl' && !value) {
@@ -130,6 +132,9 @@ app.post('/webhook', async (req, res) => {
       }
       if (key === 'timestamp' && !value) {
         value = new Date().toISOString(); // Add current timestamp
+      }
+      if (key === 'diagnosis' && !value) {
+        value = 'Meningioma'; // Default diagnosis for Depo-Provera cases
       }
       
       if (typeof value === 'boolean') return value ? 'Yes' : 'No';
@@ -204,7 +209,7 @@ app.post('/test-webhook', (req, res) => {
   
   // Build the Google Sheets row (without actually sending)
   const row = HEADERS.map((key) => {
-    let value = cleanPayload[key];
+    let value = cleanPayload[FIELD_MAPPING[key]] || cleanPayload[key];
     
     // Handle special mappings for Google Sheets
     if (key === 'xxTrustedFormCertUrl' && !value) {
@@ -212,6 +217,9 @@ app.post('/test-webhook', (req, res) => {
     }
     if (key === 'timestamp' && !value) {
       value = new Date().toISOString(); // Add current timestamp
+    }
+    if (key === 'diagnosis' && !value) {
+      value = 'Meningioma'; // Default diagnosis for Depo-Provera cases
     }
     
     if (typeof value === 'boolean') return value ? 'Yes' : 'No';
