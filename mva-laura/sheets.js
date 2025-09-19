@@ -41,19 +41,14 @@ async function getSheetsClient() {
     privateKey = privateKey.replace(/\\n/g, '\n');
   }
 
-  // Use GoogleAuth which is more compatible with newer Node.js versions
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      type: 'service_account',
-      project_id: process.env.GOOGLE_PROJECT_ID,
-      client_email: process.env.GOOGLE_CLIENT_EMAIL,
-      private_key: privateKey,
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
+  const auth = new google.auth.JWT(
+    process.env.GOOGLE_CLIENT_EMAIL,
+    null,
+    privateKey,
+    ['https://www.googleapis.com/auth/spreadsheets']
+  );
 
-  const authClient = await auth.getClient();
-  const sheets = google.sheets({ version: 'v4', auth: authClient });
+  const sheets = google.sheets({ version: 'v4', auth });
   return sheets;
 }
 
