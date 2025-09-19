@@ -144,6 +144,7 @@ async function appendRowToSheet(sheets, title, row) {
 
 module.exports = {
   getSheetsClient,
+  getSpreadsheet,
   ensureSheetAndHeaders,
   appendRowToSheet,
 };
