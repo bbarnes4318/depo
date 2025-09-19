@@ -121,10 +121,12 @@ app.post('/webhook', async (req, res) => {
     });
     
     console.log('Cleaned payload:', JSON.stringify(cleanPayload, null, 2));
+    console.log('FIELD_MAPPING:', JSON.stringify(FIELD_MAPPING, null, 2));
     
     // Build the row for Google Sheets in the exact headers order
     const row = HEADERS.map((key) => {
       let value = cleanPayload[FIELD_MAPPING[key]] || cleanPayload[key];
+      console.log(`Mapping ${key}: FIELD_MAPPING[${key}] = ${FIELD_MAPPING[key]}, value = ${value}`);
       
       // Handle special mappings for Google Sheets
       if (key === 'xxTrustedFormCertUrl' && !value) {
