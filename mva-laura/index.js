@@ -1,5 +1,48 @@
 require('dotenv').config();
 
+// Normalize Google private key formatting early to avoid OpenSSL decoder errors
+(function normalizeGooglePrivateKeyEnvVar() {
+  try {
+    let privateKey = process.env.GOOGLE_PRIVATE_KEY;
+    if (!privateKey) return;
+
+    // Strip surrounding quotes if present
+    if ((privateKey.startsWith('"') && privateKey.endsWith('"')) ||
+        (privateKey.startsWith("'") && privateKey.endsWith("'"))) {
+      privateKey = privateKey.slice(1, -1);
+    }
+
+    // Convert escaped newlines to real newlines
+    if (privateKey.includes('\\n')) {
+      privateKey = privateKey.replace(/\\n/g, '\n');
+    }
+
+    // Remove carriage returns
+    privateKey = privateKey.replace(/\r/g, '');
+
+    // If it looks base64 without headers, try decoding to PEM text
+    if (!privateKey.includes('-----BEGIN') && /^[A-Za-z0-9+/=\s]+$/.test(privateKey.trim())) {
+      try {
+        const decoded = Buffer.from(privateKey, 'base64').toString('utf8');
+        if (decoded.includes('-----BEGIN') && decoded.includes('PRIVATE KEY')) {
+          privateKey = decoded;
+        }
+      } catch (_) {
+        // Ignore decode errors
+      }
+    }
+
+    // Ensure header/footer are on their own lines
+    privateKey = privateKey
+      .replace(/-----BEGIN PRIVATE KEY-----\s*/g, '-----BEGIN PRIVATE KEY-----\n')
+      .replace(/\s*-----END PRIVATE KEY-----/g, '\n-----END PRIVATE KEY-----');
+
+    process.env.GOOGLE_PRIVATE_KEY = privateKey;
+  } catch (_) {
+    // Best-effort normalization; do not crash
+  }
+})();
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
