@@ -64,7 +64,7 @@ const FIELD_MAPPING = {
   city: 'city',
   state: 'state',
   postal_code: 'postal_code',
-  country_diagnosis: 'country', // Form field -> Sheet column
+  country: 'country_diagnosis', // Sheet column -> Form field
   diagnosis: 'diagnosis',
   date_of_exposure: 'date_of_exposure',
   brief_description_of_your_situation: 'brief_description_of_your_situation',
