@@ -64,7 +64,7 @@ const FIELD_MAPPING = {
   city: 'city',
   state: 'state',
   postal_code: 'postal_code',
-  country_diagnosis: 'country',
+  country_diagnosis: 'country', // Form field -> Sheet column
   diagnosis: 'diagnosis',
   date_of_exposure: 'date_of_exposure',
   brief_description_of_your_situation: 'brief_description_of_your_situation',
@@ -135,9 +135,6 @@ app.post('/webhook', async (req, res) => {
       }
       if (key === 'diagnosis' && !value) {
         value = 'Meningioma'; // Default diagnosis for Depo-Provera cases
-      }
-      if (key === 'country' && !value) {
-        value = cleanPayload.country_diagnosis || 'United States'; // Use country_diagnosis field
       }
       
       if (typeof value === 'boolean') return value ? 'Yes' : 'No';
