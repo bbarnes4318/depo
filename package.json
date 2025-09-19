@@ -4,10 +4,10 @@
   "description": "Round application with webhook and Google Sheets integration",
   "main": "mva-laura/index.js",
   "engines": {
-    "node": "18.x"
+    "node": "16.x"
   },
   "scripts": {
-    "start": "node mva-laura/index.js",
+    "start": "node --openssl-legacy-provider mva-laura/index.js",
     "dev": "node mva-laura/index.js",
     "build": "cd mva-laura && npm run build",
     "postinstall": "cd mva-laura && npm install"
