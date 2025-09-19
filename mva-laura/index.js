@@ -155,6 +155,9 @@ app.post('/webhook', async (req, res) => {
       const sheets = await getSheetsClient();
       console.log('Google Sheets client obtained');
 
+      console.log('SHEET_TITLE:', SHEET_TITLE);
+      console.log('HEADERS:', HEADERS);
+
       if (!sheetReady) {
         console.log('Creating sheet and headers...');
         await ensureSheetAndHeaders(sheets, SHEET_TITLE, HEADERS);
@@ -163,6 +166,7 @@ app.post('/webhook', async (req, res) => {
       }
 
       console.log('Appending row to sheet...');
+      console.log('Row to append:', row);
       await appendRowToSheet(sheets, SHEET_TITLE, row);
       console.log('Google Sheets: Row appended successfully');
       sheetsSuccess = true;
