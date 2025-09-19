@@ -136,6 +136,9 @@ app.post('/webhook', async (req, res) => {
       if (key === 'diagnosis' && !value) {
         value = 'Meningioma'; // Default diagnosis for Depo-Provera cases
       }
+      if (key === 'country' && !value) {
+        value = cleanPayload.country_diagnosis || 'United States'; // Use country_diagnosis field
+      }
       
       if (typeof value === 'boolean') return value ? 'Yes' : 'No';
       if (value === null || value === undefined) return '';
@@ -146,20 +149,25 @@ app.post('/webhook', async (req, res) => {
 
     // Send to Google Sheets
     try {
+      console.log('Getting Google Sheets client...');
       const sheets = await getSheetsClient();
+      console.log('Google Sheets client obtained');
 
       if (!sheetReady) {
+        console.log('Creating sheet and headers...');
         await ensureSheetAndHeaders(sheets, SHEET_TITLE, HEADERS);
+        console.log('Sheet and headers created successfully');
         sheetReady = true;
       }
 
+      console.log('Appending row to sheet...');
       await appendRowToSheet(sheets, SHEET_TITLE, row);
-
       console.log('Google Sheets: Row appended successfully');
     } catch (sheetsError) {
       console.error('Google Sheets error:', sheetsError);
+      console.error('Error details:', sheetsError.message);
+      console.error('Error stack:', sheetsError.stack);
       // Don't fail the entire request if Google Sheets fails
-      // The TrackDrive API already succeeded
     }
 
     res.json({ 
