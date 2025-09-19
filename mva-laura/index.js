@@ -147,6 +147,9 @@ app.post('/webhook', async (req, res) => {
     console.log('Google Sheets row:', JSON.stringify(row, null, 2));
 
     // Send to Google Sheets
+    let sheetsSuccess = false;
+    let sheetsError = null;
+    
     try {
       console.log('Getting Google Sheets client...');
       const sheets = await getSheetsClient();
@@ -162,17 +165,19 @@ app.post('/webhook', async (req, res) => {
       console.log('Appending row to sheet...');
       await appendRowToSheet(sheets, SHEET_TITLE, row);
       console.log('Google Sheets: Row appended successfully');
-    } catch (sheetsError) {
-      console.error('Google Sheets error:', sheetsError);
-      console.error('Error details:', sheetsError.message);
-      console.error('Error stack:', sheetsError.stack);
-      // Don't fail the entire request if Google Sheets fails
+      sheetsSuccess = true;
+    } catch (error) {
+      console.error('Google Sheets error:', error);
+      console.error('Error details:', error.message);
+      console.error('Error stack:', error.stack);
+      sheetsError = error;
     }
 
     res.json({ 
-      success: true, 
-      sheets_status: 'Row appended successfully',
-      row_data: row
+      success: sheetsSuccess, 
+      sheets_status: sheetsSuccess ? 'Row appended successfully' : `Google Sheets failed: ${sheetsError?.message}`,
+      row_data: row,
+      sheets_error: sheetsError?.message
     });
 
   } catch (err) {
